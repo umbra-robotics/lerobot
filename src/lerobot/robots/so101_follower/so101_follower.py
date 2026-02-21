@@ -156,6 +156,9 @@ class SO101Follower(Robot):
                 # Set I_Coefficient and D_Coefficient to default value 0 and 32
                 self.bus.write("I_Coefficient", motor, 0)
                 self.bus.write("D_Coefficient", motor, 32)
+                # Goal_Velocity must be non-zero for STS3215 firmware v3.10+,
+                # otherwise the motor holds position but won't move to new goals.
+                self.bus.write("Goal_Velocity", motor, 1000)
 
                 if motor == "gripper":
                     self.bus.write(
@@ -176,7 +179,7 @@ class SO101Follower(Robot):
 
         # Read arm position
         start = time.perf_counter()
-        obs_dict = self.bus.sync_read("Present_Position")
+        obs_dict = self.bus.sync_read("Present_Position", num_retry=2)
         obs_dict = {f"{motor}.pos": val for motor, val in obs_dict.items()}
         dt_ms = (time.perf_counter() - start) * 1e3
         logger.debug(f"{self} read state: {dt_ms:.1f}ms")
