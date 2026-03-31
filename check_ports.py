@@ -26,7 +26,7 @@ for port_path in PORTS:
         continue
 
     volts = data[0] / 10.0
-    if volts > 8:
+    if volts > 6.5:
         label = "FOLLOWER (~12V)"
     else:
         label = "LEADER  (~5V)"
